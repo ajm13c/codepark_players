@@ -232,10 +232,11 @@ def play(board, opp_last, my_last, piece)
 
 end
 
+=begin
 if __FILE__ == $0
 	row, col = 6, 7
 	board = Array.new(row){ Array.new(col) {nil}}
-=begin
+
 	board = [
 		[nil, nil, nil, nil, nil, nil, nil],
 		[nil, nil, nil, nil, nil, nil, nil],
@@ -244,7 +245,7 @@ if __FILE__ == $0
 		[true, true, false, false, nil, nil, nil],
 		[true, false, true, false, true, nil, nil],
 	]
-=end
+
 
 	turn = true
 	
@@ -274,3 +275,4 @@ if __FILE__ == $0
 	play(board, nil, nil, true)
 
 end
+=end
