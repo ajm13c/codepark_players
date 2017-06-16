@@ -155,30 +155,27 @@ def find_3(board, move, piece)
 end
 
 def line3_check(line, piece)
-	temp = []
-	check_str = piece == true ? "true" : "false"
-	s1, s2 = "0" + check_str*3, check_str*3 + "0"
-	s3, s4 = check_str + "0" + check_str*2, check_str*2 + "0" + check_str
-	str_arr = [s1, s2, s3, s4]
-	for item in line
-		if item != nil
-			temp.insert(-1, item)
+	n_cnt = p_cnt = 0
+	for i in line
+		if i == nil
+			n_cnt += 1
+		elsif i == piece
+			p_cnt += 1
 		else
-			temp.insert(-1, 0)
+			n_cnt = p_cnt = 0
 		end
+		if n_cnt == 2
+			n_cnt = 1; p_cnt = 0
+		end
+		return true if n_cnt == 1 and p_cnt == 3
 	end
-	str = temp.join("")
-
-	return true if str_arr.any? { |s| str.include? s } 
-
-	if str.include? s1 or str.include? s2 or str.include? s3 or str.include? s4
-		return true
-	end
+	return false
 end
 
 
-def play(board, opp_last, my_last, piece)
+def play(board, opp_last, piece)
 	moves = valids(board)
+	opp = piece == 1? 0 : 1
 
 	#check if player can win
 	for move in moves
@@ -189,7 +186,7 @@ def play(board, opp_last, my_last, piece)
 
 	# check if player can block opponent from winning
 	for move in moves
-		if can_win(board, move, (not piece))
+		if can_win(board, move, opp)
 			return move
 		end
 	end
@@ -198,7 +195,7 @@ def play(board, opp_last, my_last, piece)
 	# put the opponent in a position on their next turn
 	for r, c in moves
 		if r - 1 >= 0
-			if can_win(board, [r-1, c], (not piece))
+			if can_win(board, [r-1, c], opp)
 				moves -= [[r, c]]
 			end
 		end
@@ -221,15 +218,13 @@ def play(board, opp_last, my_last, piece)
 	end
 	#block opponents three's
 	for move in moves
-		if find_3(board, move, (not piece))
-			print "Found a 3 to block... : ", move, "\n"
+		if find_3(board, move, opp)
 			return move
 		end
 	end
 
 	#return the middle most move
 	return moves[0]
-
 end
 
 =begin
@@ -247,17 +242,17 @@ if __FILE__ == $0
 	]
 
 
-	turn = true
+	turn = 1
 	
 	while true do
 		for r in board
 			for i in r
 				if i == nil
 					print "-"
-				elsif i == true
-					print "o"
-				else
+				elsif i == 1
 					print "x"
+				else
+					print "o"
 				end
 				print " "
 			end
@@ -267,12 +262,11 @@ if __FILE__ == $0
 		user = gets.chomp.split(" ").map(&:to_i)
 		board[user[0]][user[1]] = turn
 		last = nil
-		mylast = nil
-		move = play(board, last, mylast, false)
-		board[move[0]][move[1]] = false
+		move = play(board, last, 0)
+		board[move[0]][move[1]] = 0
 	end
 
-	play(board, nil, nil, true)
+	#play(board, nil, true)
 
 end
 =end
