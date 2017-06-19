@@ -1,6 +1,63 @@
 #!/usr/bin/env ruby
 
 
+def play(board, opp_last, piece)
+	moves = valids(board)
+	opp = piece == 1? 0 : 1
+
+	#check if player can win
+	for move in moves
+		if can_win(board, move, piece)
+			return move
+		end
+	end
+
+	# check if player can block opponent from winning
+	for move in moves
+		if can_win(board, move, opp)
+			return move
+		end
+	end
+	
+	# next we must find and remove all moves which 
+	# put the opponent in a position on their next turn
+	for r, c in moves
+		if r - 1 >= 0
+			if can_win(board, [r-1, c], opp)
+				moves -= [[r, c]]
+			end
+		end
+	end
+
+	#if you cant move without letting the opponent win, skip
+	if moves.length == 0
+		return nil
+	end
+
+	# middle pieces are more valuable so we will next sort
+	# these moves by middle-ness
+	moves = mid_sort(moves)
+
+	# get three pieces in a row, works with a nil in between as well
+	for move in moves
+		if find_3(board, move, piece)
+			return move
+		end
+	end
+	#block opponents three's
+	for move in moves
+		if find_3(board, move, opp)
+			return move
+		end
+	end
+
+	#return the middle most move
+	return moves[0]
+end
+
+
+module_function
+
 def valids(board)
 	valids = []
 	(0..board[0].length()-1).step(1) do |c|
@@ -173,59 +230,7 @@ def line3_check(line, piece)
 end
 
 
-def play(board, opp_last, piece)
-	moves = valids(board)
-	opp = piece == 1? 0 : 1
 
-	#check if player can win
-	for move in moves
-		if can_win(board, move, piece)
-			return move
-		end
-	end
-
-	# check if player can block opponent from winning
-	for move in moves
-		if can_win(board, move, opp)
-			return move
-		end
-	end
-	
-	# next we must find and remove all moves which 
-	# put the opponent in a position on their next turn
-	for r, c in moves
-		if r - 1 >= 0
-			if can_win(board, [r-1, c], opp)
-				moves -= [[r, c]]
-			end
-		end
-	end
-
-	#if you cant move without letting the opponent win, skip
-	if moves.length == 0
-		return nil
-	end
-
-	# middle pieces are more valuable so we will next sort
-	# these moves by middle-ness
-	moves = mid_sort(moves)
-
-	# get three pieces in a row, works with a nil in between as well
-	for move in moves
-		if find_3(board, move, piece)
-			return move
-		end
-	end
-	#block opponents three's
-	for move in moves
-		if find_3(board, move, opp)
-			return move
-		end
-	end
-
-	#return the middle most move
-	return moves[0]
-end
 
 =begin
 if __FILE__ == $0
